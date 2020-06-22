@@ -69,7 +69,7 @@ class OAuth2Client(object):
             params=params,
             data=data,
             headers=self.headers,
-            auth=auth)
+            auth=auth, verify=False)
 
         access_token = None
         if resp.status_code in [200, 201]:

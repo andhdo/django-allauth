@@ -1,8 +1,21 @@
 import requests
 from urllib.parse import parse_qsl
-
+from django.conf import settings
 from django.utils.http import urlencode
 
+def import_from_settings(attr, *args):
+    """
+    Load an attribute from the django settings.
+
+    :raises:
+        ImproperlyConfigured
+    """
+    try:
+        if args:
+            return getattr(settings, attr, args[0])
+        return getattr(settings, attr)
+    except AttributeError:
+        raise ImproperlyConfigured('Setting {0} not found'.format(attr))
 
 class OAuth2Error(Exception):
     pass
@@ -69,7 +82,7 @@ class OAuth2Client(object):
             params=params,
             data=data,
             headers=self.headers,
-            auth=auth, verify=False)
+            auth=auth, verify=import_from_settings('OAUTH2_VERIFY_SSL', True) )
 
         access_token = None
         if resp.status_code in [200, 201]:
